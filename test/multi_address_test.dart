@@ -143,18 +143,17 @@ void main() {
     "/ip4/127.0.0.1/tcp/40001/p2p/16Uiu2HAkuqGKz8D6khfrnJnDrN5VxWWCoLU8Aq4eCFJuyXmfakB5"
   ];
 
-  // for (String address in invalidAddressList) {
-  //   test("Invalid address $address", () {
-  //     expect(() => MultiAddress.fromString(address), throwsA(isA<FormatException>()));
-  //   });
-  // }
+  for (String address in invalidAddressList) {
+    test("Invalid address $address", () {
+      expect(() => MultiAddress.fromString(address), throwsA(isA<FormatException>()));
+    });
+  }
 
   for (String address in validAddressList) {
     test("Valid address $address", () {
       var multiaddr = MultiAddress.fromString(address);
       var multiaddr1 = MultiAddress.fromBytes(multiaddr.toBytes());
       expect(toCanonical(address), multiaddr1.toString());
-
     });
   }
 }

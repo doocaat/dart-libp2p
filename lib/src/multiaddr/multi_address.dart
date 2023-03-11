@@ -51,6 +51,10 @@ class MultiAddress {
     }
     var parts = address.split("/");
 
+    if(address.contains(RegExp(r"\n|\s/g")) || address.endsWith(" ")) {
+      throw FormatException("MultiAddress mustn't have char: \n or whitespace");
+    }
+
     if (parts[0].isNotEmpty) {
       throw FormatException("MultiAddress must start with a /");
     }

@@ -110,9 +110,9 @@ class Protocol {
         case ProtocolType.SCTP:
           {
             int x = int.parse(addr);
-            if (x > 65535) {
+            if (x > 65535 || x < 0) {
               throw FormatException(
-                  "Failed to parse ${_type.name} address $addr (> 65535");
+                  "Failed to parse ${_type.name} address 0 > $addr > 65535");
             }
 
             var bb = BytesBuilder();
@@ -126,7 +126,15 @@ class Protocol {
             if (!addr.startsWith("Qm") && !addr.startsWith("1")) {
               throw FormatException("Incorrect hash, should star on Qm or 1");
             }
-            return bs.base58.decode(addr);
+            try {
+              var bytes = bs.base58.decode(addr);
+              if (bytes.length < 32 || bytes.length > 50) {
+                throw FormatException("Invalid hash length: ${bytes.length}");
+              }
+              return bytes;
+            } catch (e) {
+              throw FormatException("Incorrect hash: $addr");
+            }
           }
         case ProtocolType.ONION3:
           {
