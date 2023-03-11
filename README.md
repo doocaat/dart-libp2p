@@ -19,7 +19,7 @@
 ## Roadmap
 
 - [] multistream-select 1.0
-- [] multiformats: [multiaddr](https://github.com/multiformats/multiaddr)
+- [X] multiformats: [multiaddr](https://github.com/multiformats/multiaddr)
 - [] crypto (RSA, ed25519, secp256k1)
 - [] [secio](https://github.com/libp2p/specs/pull/106)
 - [] [connection bootstrapping](https://github.com/libp2p/specs/pull/168)
