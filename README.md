@@ -18,20 +18,20 @@
 
 ## Roadmap
 
-- [] multistream-select 1.0
+- [ ] multistream-select 1.0
 - [X] multiformats: [multiaddr](https://github.com/multiformats/multiaddr)
-- [] crypto (RSA, ed25519, secp256k1)
-- [] [secio](https://github.com/libp2p/specs/pull/106)
-- [] [connection bootstrapping](https://github.com/libp2p/specs/pull/168)
-- [] mplex as a multiplexer
-- [] stream multiplexing
-- [] TCP transport (dialing and listening)
-- [] Identify protocol
-- [] Ping protocol
-- [] [peer ID](https://github.com/libp2p/specs/pull/100)
-- [] noise security protocol
-- [] MDNS
-- [] Gossip 1.1 pubsub
+- [ ] crypto (RSA, ed25519, secp256k1)
+- [ ] [secio](https://github.com/libp2p/specs/pull/106)
+- [ ] [connection bootstrapping](https://github.com/libp2p/specs/pull/168)
+- [ ] mplex as a multiplexer
+- [ ] stream multiplexing
+- [ ] TCP transport (dialing and listening)
+- [ ] Identify protocol
+- [ ] Ping protocol
+- [ ] [peer ID](https://github.com/libp2p/specs/pull/100)
+- [ ] noise security protocol
+- [ ] MDNS
+- [ ] Gossip 1.1 pubsub
 
 ## Features
 
