@@ -6,6 +6,7 @@ import 'package:fixnum/fixnum.dart';
 import '../multibase/multibase.dart';
 import 'protocol_map.dart';
 import 'package:bs58/bs58.dart' as bs;
+import 'package:buffer/buffer.dart';
 
 class Protocol {
   static final map = ProtocolMap();
@@ -15,16 +16,17 @@ class Protocol {
 
   Protocol(this._type, this.encoded);
 
-  Protocol.byType(type) : this(type, encode(type.code));
+  Protocol.fromType(type) : this(type, encode(type.code));
 
   int size() {
     return _type.size;
   }
 
   static Uint8List encode(int c) {
-    Uint8List varint = Uint8List((32 - Int32(c).numberOfLeadingZeros() + 6 / 7).round());
-    putUvarint(varint, c);
-    return varint;
+    ByteDataWriter writer = ByteDataWriter(bufferLength: 4);
+    writer.write(encodeVarint(c));
+
+    return writer.toBytes();
   }
 
   static int putUvarint(Uint8List buf, int x) {
@@ -36,7 +38,7 @@ class Protocol {
       }
       buf[i] = x;
       return i + 1;
-     // return decodeVarint(buf, x).numBytesRead;
+      return decodeVarint(buf, x).numBytesRead;
   }
 
   static Protocol byName(String name) {
@@ -92,8 +94,6 @@ class Protocol {
           } catch (e) {
             throw FormatException("Invalid IPv6 address: $addr");
           }
-        case ProtocolType.IPCIDR:
-          return Uint8List.fromList(utf8.encode(addr));
         case ProtocolType.IP6ZONE:
           if (addr.isEmpty) {
             throw FormatException("Empty IPv6 zone!");
@@ -115,10 +115,10 @@ class Protocol {
                   "Failed to parse ${_type.name} address $addr (> 65535");
             }
 
-            var bytes = BytesBuilder();
-            bytes.add(utf8.encode(x.toString()));
-
-            return bytes.toBytes();
+            var bb = BytesBuilder();
+            bb.addByte(x >> 8);
+            bb.addByte(x);
+            return bb.toBytes();
           }
         case ProtocolType.P2P:
         case ProtocolType.IPFS:
@@ -127,40 +127,6 @@ class Protocol {
               throw FormatException("Incorrect hash, should star on Qm or 1");
             }
             return bs.base58.decode(addr);
-          }
-        case ProtocolType.CERTHASH:
-            return multibaseDecode(addr);
-        case ProtocolType.ONION:
-          {
-            List<String> split = addr.split(":");
-            if (split.length != 2) {
-              throw FormatException("Onion address needs a port: $addr");
-            }
-
-            // onion address without the ".onion" substring
-            if (split[0].length != 16) {
-              throw FormatException(
-                  "failed to parse $name addr: $addr not a Tor onion address.");
-            }
-
-            Uint8List onionHostBytes = multibaseDecode("b${split[0]}");
-            if (onionHostBytes.length != 10) {
-              throw FormatException("Invalid onion address host: ${split[0]}");
-            }
-
-            int port = int.parse(split[1]);
-            if (port > 65535) {
-              throw FormatException("Port is > 65535: ${port.toString()}");
-            }
-
-            if (port < 1) {
-              throw FormatException("Port is < 1: $port");
-            }
-
-            BytesBuilder dout = BytesBuilder();
-            dout.add(onionHostBytes);
-            dout.add(utf8.encode(port.toString()));
-            return dout.toBytes();
           }
         case ProtocolType.ONION3:
           {
@@ -191,12 +157,15 @@ class Protocol {
 
             BytesBuilder dout = BytesBuilder();
             dout.add(onionHostBytes);
-            dout.add(utf8.encode(port.toString()));
+            dout.addByte(port >> 8);
+            dout.addByte(port);
             return dout.toBytes();
           }
         case ProtocolType.UNIX:
           {
-            if (addr.startsWith("/")) addr = addr.substring(1);
+            if (addr.startsWith("/")) {
+              addr = addr.substring(1);
+            }
             Uint8List path = Uint8List.fromList(utf8.encode(addr));
             BytesBuilder dout = BytesBuilder();
             Uint8List length =
@@ -204,7 +173,7 @@ class Protocol {
             putUvarint(length, path.length);
             dout.add(length);
             dout.add(path);
-            return dout.toBytes();
+            return Uint8List.fromList(utf8.encode(addr));
           }
         case ProtocolType.DNS:
         case ProtocolType.DNS4:
@@ -231,34 +200,25 @@ class Protocol {
       case ProtocolType.IP6:
         var buf = read(addr, size);
         return InternetAddress.fromRawAddress(buf).address;
-      case ProtocolType.IPCIDR:
-        return utf8.decode(addr);
       case ProtocolType.IP6ZONE:
         return utf8.decode(addr);
       case ProtocolType.TCP:
       case ProtocolType.UDP:
       case ProtocolType.DCCP:
-      case ProtocolType.SCTP:
-         return utf8.decode(addr);
+      case ProtocolType.SCTP: {
+        return ((addr[0] << 8) + addr[1]).toString();
+      }
       case ProtocolType.P2P:
       case ProtocolType.IPFS:
         return bs.base58.encode(addr);
-      case ProtocolType.CERTHASH:
-        return multibaseEncode(Multibase.base64url, addr);
-      case ProtocolType.ONION: {
-        var host = Uint8List.fromList(addr.getRange(0, 10).toList());
-        var port = utf8.decode(addr.getRange(10, addr.length).toList());
-        return "${multibaseEncode(Multibase.base32, host).substring(1)}:$port";
-      }
       case ProtocolType.ONION3: {
-        // var host = read(addr, 35);
-        // String port = ((addr.first << 8) | (addr.first)).toString();
         var host = Uint8List.fromList(addr.getRange(0, 35).toList());
-        var port = utf8.decode(addr.getRange(35, addr.length).toList());
+        var portBytes = Uint8List.fromList(addr.getRange(35, addr.length).toList());
+        var port = ((portBytes[0] << 8) + portBytes[1]);
         return "${multibaseEncode(Multibase.base32, host).substring(1)}:$port";
       }
       case ProtocolType.UNIX: {
-        return utf8.decode(read(addr, size));
+        return utf8.decode(addr);
       }
       case ProtocolType.DNS:
       case ProtocolType.DNS4:
@@ -297,7 +257,9 @@ class Protocol {
       return 0;
     }
 
-    return decodeVarint(addr, 0).numBytesRead;
+    var result = decodeVarint(addr, 0);
+
+    return result.res;
   }
 
   @override

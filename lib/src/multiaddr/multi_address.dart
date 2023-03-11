@@ -1,13 +1,15 @@
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:dart_multihash/src/multihash/varint_utils.dart';
 import 'multiaddr_component.dart';
 import 'protocol.dart';
+import 'protocol_map.dart';
 
 class MultiAddress {
   final List<MultiaddrComponent> _components;
   MultiAddress(this._components);
   MultiAddress.fromString(String address) : this(_convertToUint(address));
-  MultiAddress.deserialize(Uint8List address) : this(_parseBytes(address));
+  MultiAddress.fromBytes(Uint8List address) : this(_parseBytes(address));
   
 
   @override
@@ -15,7 +17,7 @@ class MultiAddress {
     return _components.fold("", (previousValue, element) => "$previousValue$element");
   }
 
-  Uint8List serialize() {
+  Uint8List toBytes() {
     var bb = BytesBuilder();
     for (var element in _components) {
       bb.add(element.serialize());
@@ -23,8 +25,24 @@ class MultiAddress {
     return bb.toBytes();
   }
 
-  static List<MultiaddrComponent> _parseBytes(Uint8List) {
-    encodeVarint(value)
+  static List<MultiaddrComponent> _parseBytes(Uint8List addrBytes) {
+    List<MultiaddrComponent> components = [];
+    Uint8List buf = addrBytes;
+
+    while(buf.isNotEmpty) {
+      var result = decodeVarint(buf, 0);
+      var protocol = Protocol.byCode(result.res);
+      buf = Uint8List.fromList(buf.getRange(result.numBytesRead, buf.length).toList());
+
+      int size = protocol.sizeForAddress(buf);
+      var start = protocol.size() == lengthPrefixedVarSize ? 1 : 0;
+      var addressBuf = buf.getRange(start, size + start).toList();
+      buf = Uint8List.fromList(buf.getRange(start + size, buf.length).toList());
+
+      components.add(MultiaddrComponent(protocol, Uint8List.fromList(addressBuf)));
+    }
+
+    return components;
   }
 
   static List<MultiaddrComponent> _convertToUint(String address) {
@@ -50,9 +68,8 @@ class MultiAddress {
         }
 
         if (protocol.isTerminal) {
-          List<String> list = [];
-          List.copyRange<String>(list, i, parts);
-          component = list.reduce((value, element) => "$value/$element");
+          List<String> list = parts.getRange(i, parts.length).toList();
+          component = list.fold("",(value, element) => "$value/$element");
         } else {
           component = parts[i++];
         }

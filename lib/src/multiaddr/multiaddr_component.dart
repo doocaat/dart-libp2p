@@ -3,6 +3,8 @@
 import 'dart:typed_data';
 
 import 'package:dart_libp2p/src/multiaddr/protocol.dart';
+import 'package:dart_multihash/src/multihash/varint_utils.dart';
+import 'protocol_map.dart';
 
 class MultiaddrComponent {
   Protocol protocol;
@@ -13,6 +15,11 @@ class MultiaddrComponent {
   Uint8List serialize() {
     var bb = BytesBuilder();
     bb.add(protocol.encoded);
+
+    if(protocol.typeSize == lengthPrefixedVarSize){
+      bb.add(encodeVarint(value.length));
+    }
+
     bb.add(value);
     return bb.toBytes();
   }
