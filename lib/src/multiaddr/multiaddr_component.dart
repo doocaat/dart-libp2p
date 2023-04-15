@@ -1,7 +1,4 @@
-
-
 import 'dart:typed_data';
-
 import 'package:dart_libp2p/src/multiaddr/protocol.dart';
 import 'package:dart_multihash/src/multihash/varint_utils.dart';
 import 'protocol_map.dart';

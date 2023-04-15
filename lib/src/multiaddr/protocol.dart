@@ -53,7 +53,7 @@ class Protocol {
   }
 
   bool get isTerminal {
-    return _type == ProtocolType.UNIX;
+    return _type == ProtocolType.unix;
   }
 
   String get name {

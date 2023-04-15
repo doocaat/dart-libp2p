@@ -41,37 +41,38 @@ class ProtocolMap {
 const int lengthPrefixedVarSize = -1;
 
 enum ProtocolType {
-  IP4(4, 32, "ip4", _Serializer.ipV4, _Deserializer.ipV4),
-  TCP(6, 16, "tcp", _Serializer.uint16, _Deserializer.uint16),
-  DCCP(33, 16, "dccp", _Serializer.uint16, _Deserializer.uint16),
-  IP6(41, 128, "ip6", _Serializer.ipV6, _Deserializer.ipV6),
-  IP6ZONE(42, lengthPrefixedVarSize, "ip6zone", _Serializer.utf8, _Deserializer.utf8),
-  DNS(53, lengthPrefixedVarSize, "dns", _Serializer.utf8, _Deserializer.utf8),
-  DNS4(54, lengthPrefixedVarSize, "dns4", _Serializer.utf8, _Deserializer.utf8),
-  DNS6(55, lengthPrefixedVarSize, "dns6", _Serializer.utf8, _Deserializer.utf8),
-  DNSADDR(56, lengthPrefixedVarSize, "dnsaddr", _Serializer.utf8, _Deserializer.utf8),
-  SCTP(132, 16, "sctp", _Serializer.uint16, _Deserializer.uint16),
-  UDP(273, 16, "udp", _Serializer.uint16, _Deserializer.uint16),
-  P2PWEBRTC(276, 0, "p2p-webrtc-direct", _Serializer.noImplement, _Deserializer.noImplement),
-  UTP(301, 0, "utp", _Serializer.noImplement, _Deserializer.noImplement),
-  UDT(302, 0, "udt", _Serializer.noImplement, _Deserializer.noImplement),
-  UNIX(400, lengthPrefixedVarSize, "unix", _Serializer.unix, _Deserializer.utf8),
-  P2P(421, lengthPrefixedVarSize, "p2p", _Serializer.base58, _Deserializer.base58),
-  IPFS(421, lengthPrefixedVarSize, "ipfs", _Serializer.base58, _Deserializer.base58),
-  HTTPS(443, 0, "https", _Serializer.noImplement, _Deserializer.noImplement),
-  ONION3(445, 296, "onion3", _Serializer.onion3, _Deserializer.onion3),
-  TLS(448, 0, "tls", _Serializer.noImplement, _Deserializer.noImplement),
-  NOISE(454, 0, "noise", _Serializer.noImplement, _Deserializer.noImplement),
-  QUIC(460, 0, "quic", _Serializer.noImplement, _Deserializer.noImplement),
-  QUIC_V1(461, 0, "quic-v1", _Serializer.noImplement, _Deserializer.noImplement),
-  WEBTRANSPORT(465, 0, "webtransport", _Serializer.noImplement, _Deserializer.noImplement),
-  CERTHASH(466, lengthPrefixedVarSize, "certhash", _Serializer.noImplement, _Deserializer.noImplement),
-  WS(477, 0, "ws", _Serializer.noImplement, _Deserializer.noImplement),
-  WSS(478, 0, "wss", _Serializer.noImplement, _Deserializer.noImplement),
-  P2PCIRCUIT(290, 0, "p2p-circuit", _Serializer.noImplement, _Deserializer.noImplement),
-  HTTP(480, 0, "http", _Serializer.noImplement, _Deserializer.noImplement);
+  ip4(code: 4, size: 32, name: "ip4", serializer: _Serializer.ipV4, deserializer: _Deserializer.ipV4),
+  tcp(code: 6, size: 16, name: "tcp", serializer: _Serializer.uint16, deserializer: _Deserializer.uint16),
+  dccp(code: 33, size: 16, name: "dccp", serializer: _Serializer.uint16, deserializer: _Deserializer.uint16),
+  ip6(code: 41, size: 128, name: "ip6", serializer: _Serializer.ipV6, deserializer: _Deserializer.ipV6),
+  ip6zone(code: 42, size: lengthPrefixedVarSize, name: "ip6zone", serializer: _Serializer.utf8, deserializer: _Deserializer.utf8),
+  dns(code: 53, size: lengthPrefixedVarSize, name: "dns", serializer: _Serializer.utf8, deserializer: _Deserializer.utf8),
+  dns4(code: 54, size: lengthPrefixedVarSize, name: "dns4", serializer: _Serializer.utf8, deserializer: _Deserializer.utf8),
+  dns6(code: 55, size: lengthPrefixedVarSize, name: "dns6", serializer: _Serializer.utf8, deserializer: _Deserializer.utf8),
+  dnsaddr(code: 56, size: lengthPrefixedVarSize, name: "dnsaddr", serializer: _Serializer.utf8, deserializer: _Deserializer.utf8),
+  sctp(code: 132, size: 16, name: "sctp", serializer: _Serializer.uint16, deserializer: _Deserializer.uint16),
+  udp(code: 273, size: 16, name: "udp", serializer: _Serializer.uint16, deserializer: _Deserializer.uint16),
+  p2pWebRTC(code: 276, size: 0, name: "p2p-webrtc-direct"),
+  utp(code: 301, size: 0, name: "utp"),
+  udt(code: 302, size: 0, name: "udt"),
+  unix(code: 400, size: lengthPrefixedVarSize, name: "unix", serializer: _Serializer.unix, deserializer: _Deserializer.utf8),
+  p2p(code: 421, size: lengthPrefixedVarSize, name: "p2p", serializer: _Serializer.base58, deserializer: _Deserializer.base58),
+  ipfs(code: 421, size: lengthPrefixedVarSize, name: "ipfs", serializer: _Serializer.base58, deserializer: _Deserializer.base58),
+  http(code: 480, size: 0, name: "http"),
+  https(code: 443, size: 0, name: "https"),
+  onion3(code: 445, size: 296, name: "onion3", serializer: _Serializer.onion3, deserializer: _Deserializer.onion3),
+  tls(code: 448, size: 0, name: "tls"),
+  noise(code: 454, size: 0, name: "noise"),
+  quic(code: 460, size: 0, name: "quic"),
+  quicV1(code: 461, size: 0, name: "quic-v1"),
+  webTransport(code: 465, size: 0, name: "webtransport"),
+  certHash(code: 466, size: lengthPrefixedVarSize, name: "certhash"),
+  ws(code: 477, size: 0, name: "ws"),
+  wss(code: 478, size: 0, name: "wss"),
+  p2pCircuit(code: 290, size: 0, name: "p2p-circuit");
 
-  const ProtocolType(this.code, this.size, this.name, this.serializer, this.deserializer);
+
+  const ProtocolType({required this.code, required this.size, required this.name, this.serializer = _Serializer.noImplement, this.deserializer = _Deserializer.noImplement});
 
   final int code;
   final int size;

@@ -1,9 +1,9 @@
-import 'dart:convert';
 import 'dart:typed_data';
 import 'package:dart_multihash/src/multihash/varint_utils.dart';
 import 'multiaddr_component.dart';
 import 'protocol.dart';
 import 'protocol_map.dart';
+
 
 class MultiAddress {
   final List<MultiaddrComponent> _components;
