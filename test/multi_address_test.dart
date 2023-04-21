@@ -80,7 +80,7 @@ void main() {
     "/ip6/2601:9:4f81:9700:803e:ca65:66e8:c21",
     "/ip6/2601:9:4f81:9700:803e:ca65:66e8:c21/udp/1234/quic",
     "/ip6zone/x/ip6/fe80::1",
-   "/ip6zone/x%y/ip6/fe80::1",
+    "/ip6zone/x%y/ip6/fe80::1",
     "/ip6zone/x%y/ip6/::",
     "/ip6zone/x/ip6/fe80::1/udp/1234/quic",
     "/ip6/::1/udp/4001/quic-v1",

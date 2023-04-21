@@ -1,24 +1,44 @@
-import 'dart:io';
 import 'dart:typed_data';
-import 'package:dart_multihash/src/multihash/varint_utils.dart';
-import 'protocol_map.dart';
+import 'varint_utils.dart';
+import 'protocol_type.dart';
 import 'package:buffer/buffer.dart';
+import 'dart:collection';
 
 class Protocol {
-  static final map = ProtocolMap();
+  static final _nameMap = HashMap<String, Protocol>.fromIterable(ProtocolType.values, key: (i) => i.name, value: (i) => Protocol._fromType(i));
+  static final _codeMap = HashMap<int, Protocol>.fromIterable(ProtocolType.values, key: (i) => i.code, value: (i) => Protocol._fromType(i));
+
 
   final ProtocolType _type;
   final Uint8List encoded;
 
-  Protocol(this._type, this.encoded);
+  Protocol._(this._type, this.encoded);
 
-  Protocol.fromType(type) : this(type, encode(type.code));
+  Protocol._fromType(type) : this._(type, _encode(type.code));
+
+  factory Protocol.byName(String name) {
+    var protocol = _nameMap[name];
+    if (protocol != null) {
+      return protocol;
+    }
+
+    throw FormatException('No protocol with name: $name');
+  }
+
+  factory Protocol.byCode(int code) {
+    var protocol = _codeMap[code];
+    if (protocol != null) {
+      return protocol;
+    }
+
+    throw FormatException('No protocol with code: $code');
+  }
 
   int size() {
     return _type.size;
   }
 
-  static Uint8List encode(int c) {
+  static Uint8List _encode(int c) {
     ByteDataWriter writer = ByteDataWriter(bufferLength: 4);
     writer.write(encodeVarint(c));
 
@@ -34,14 +54,6 @@ class Protocol {
       }
       buf[i] = x;
       return i + 1;
-  }
-
-  static Protocol byName(String name) {
-    return map.byName(name);
-  }
-
-  static Protocol byCode(int code) {
-    return map.byCode(code);
   }
 
   int get code {
@@ -72,25 +84,25 @@ class Protocol {
     return _type.deserializer(this, addr);
   }
 
-  Uint8List read(Uint8List source, int len) {
-    return readOffsetAndLen(source, 0, len);
-  }
+  // Uint8List read(Uint8List source, int len) {
+  //   return readOffsetAndLen(source, 0, len);
+  // }
 
-  Uint8List readOffsetAndLen(Uint8List source, int offset, int len) {
-    var total=0, r=0, buf = BytesBuilder();
-    while (total < len && r != -1) {
-        var start = offset + total;
-        var end = start + (len - total);
-        var addrBuf = source.getRange(start, end);
-        r = addrBuf.isNotEmpty ? addrBuf.length : -1;
-        buf.add(addrBuf.toList());
-      if (r >=0) {
-        total = total + r;
-      }
-    }
-
-    return buf.toBytes();
-  }
+  // Uint8List readOffsetAndLen(Uint8List source, int offset, int len) {
+  //   var total=0, r=0, buf = BytesBuilder();
+  //   while (total < len && r != -1) {
+  //       var start = offset + total;
+  //       var end = start + (len - total);
+  //       var addrBuf = source.getRange(start, end);
+  //       r = addrBuf.isNotEmpty ? addrBuf.length : -1;
+  //       buf.add(addrBuf.toList());
+  //     if (r >=0) {
+  //       total = total + r;
+  //     }
+  //   }
+  //
+  //   return buf.toBytes();
+  // }
 
   int sizeForAddress(Uint8List addr) {
     if (_type.size > 0) {
