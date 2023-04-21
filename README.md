@@ -20,6 +20,8 @@
 
 - [ ] multistream-select 1.0
 - [X] multiformats: [multiaddr](https://github.com/multiformats/multiaddr)
+-  - [ ] Support multiaddr dns4 and dns6
+-  - [ ] Support multiaddr certhash
 - [ ] crypto (RSA, ed25519, secp256k1)
 - [ ] [secio](https://github.com/libp2p/specs/pull/106)
 - [ ] [connection bootstrapping](https://github.com/libp2p/specs/pull/168)
